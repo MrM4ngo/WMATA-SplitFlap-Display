@@ -66,7 +66,6 @@ def get_all_stations():
         return None
     
 def save_stations_to_csv(station_data, filename="wmata_stations.csv"):
-    # Extract the list of stations from the API response payload
     stations = station_data.get("Stations", [])
     
     if not stations:
