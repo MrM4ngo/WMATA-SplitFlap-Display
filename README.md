@@ -1,4 +1,4 @@
-# TrainAPISplitFlap
+# WMATA Splitflap Display Board
 
 A Python service that pulls live WMATA Metro train predictions and formats them for a split-flap display board. Shows upcoming arrivals at your station, filtered by how long it takes you to walk there, with abbreviated destination names that fit limited character displays.
 
