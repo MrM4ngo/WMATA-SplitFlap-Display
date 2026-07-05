@@ -1,6 +1,5 @@
 import os
 import requests
-import csv
 from dotenv import load_dotenv
 import Variables
 import time
@@ -8,55 +7,81 @@ import time
 load_dotenv()
 api_key = os.getenv("API_KEY")
 
+# Helper Functions
 
-def Trains(station_code,Threshold):
 
-    def get_train_predictions(station_code):
-        url = f"https://api.wmata.com/StationPrediction.svc/json/GetPrediction/{station_code}"
-        headers = {"api_key": api_key}
-        
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            print(f"Error: {response.status_code}")
-            return None
-        
-    def get_next_viable_trains(prediction_data, Threshold):
-        trains = prediction_data.get("Trains", [])
-        if not trains:
-            return {}
+def MinToInt(MinValue):
+    if MinValue in ("ARR", "BRD"):
+        return 0
+    elif MinValue in ("---", "", None):
+        return None
+    else:
+        return int(MinValue)
 
-        def min_to_int(min_value):
-            if min_value in ("ARR", "BRD"):
-                return 0
-            elif min_value == "---":
-                return None
-            else:
-                return int(min_value)
 
-        Size = len(trains)
-        # print(trains)
-        # print(Size)
+def AbbreviateChecker(name):
+    if name in Variables.AbrvStations:
+        return Variables.AbrvStations[name]
+    else:
+        return name
 
-        TrainList = []
 
-        for i in range(Size):
-            if trains[i]["Destination"] not in [train["Destination"] for train in TrainList]:
-                minutes = min_to_int(trains[i]["Min"])
-                if minutes is not None and minutes >= Threshold:
-                    TempTrain = {"Destination": trains[i]["Destination"], "Min": minutes, "Line": trains[i]["Line"]}
-                    TrainList.append(TempTrain)
-        
-        return TrainList
-    
-    predictions = get_train_predictions(station_code)
-    if predictions:
-        next_trains = get_next_viable_trains(predictions, Threshold=Threshold)
-    return next_trains
-    
+def PrintSpacer(UpcomingTrains):
+    size = len(UpcomingTrains)
+    for i in range(size):
+        print(
+            UpcomingTrains[i]["Destination"],
+            UpcomingTrains[i]["Min"],
+            UpcomingTrains[i]["Line"],
+        )
+        time.sleep(Variables.TrainRefreshTime / size)
+
+
+# Main Functions
+
+
+def TrainPredictions(StationCode):
+    url = (
+        f"https://api.wmata.com/StationPrediction.svc/json/GetPrediction/{StationCode}"
+    )
+    headers = {"api_key": api_key}
+
+    response = requests.get(url, headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print(f"Error: {response.status_code}")
+        return None
+
+
+def UpcomingTrains(StationCode, Threshold):
+
+    UpcomingTrains = []
+
+    data = TrainPredictions(StationCode)
+
+    if data is None or "Trains" not in data:
+        print("No trains found or API error")
+        return UpcomingTrains
+
+    for train in data["Trains"]:
+        if train["Destination"] not in [
+            SavedTrain["Destination"] for SavedTrain in UpcomingTrains
+        ]:
+            minutes = MinToInt(train["Min"])
+            if minutes is not None and minutes >= Threshold:
+                TempTrain = {
+                    "Destination": AbbreviateChecker(train["Destination"]),
+                    "Min": minutes,
+                    "Line": train["Line"],
+                }
+                UpcomingTrains.append(TempTrain)
+
+    return UpcomingTrains
+
 
 if __name__ == "__main__":
     while True:
-        print(Trains(Variables.TrainStationCode, Variables.MinuteThreshold))
-        time.sleep(Variables.TrainRefreshTime)
+        PrintSpacer(
+            UpcomingTrains(Variables.TrainStationCode, Variables.MinuteThreshold)
+        )

@@ -1,9 +1,9 @@
 # Time it takes to walk to train
-MinuteThreshold = 0
+MinuteThreshold = 5
 # How often to refresh the train data (in seconds)
-TrainRefreshTime = 30
+TrainRefreshTime = 10
 # Train station code to get predictions for (See wmata_stations.csv for list of station codes)
-TrainStationCode = "D02"
+TrainStationCode = "A02"
 
 # Abbreviated station names for display purposes (Larger than 10 characters inclding spaces will be abbreviated)
 AbrvStations = {
