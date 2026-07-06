@@ -3,27 +3,25 @@
 #include <Arduino.h>
 #include <map>
 
-// ---------------- WiFi credentials ----------------
-extern const char *WIFI_SSID;
-extern const char *WIFI_PASSWORD;
+// Runtime settings stored in NVS flash. Edited through the WiFi config
+// portal (hold the BOOT button, or automatic on first boot) instead of
+// being compiled in, so no secrets live in the source tree.
+struct Settings
+{
+  String apiKey;
+  String stationCode;
+  int minuteThreshold;
+  unsigned long refreshSeconds;
+};
 
-// ---------------- WMATA API ----------------
-// Equivalent of the .env API_KEY loaded via dotenv in the Python version.
-extern const char *API_KEY;
+extern Settings AppSettings;
 
-// ---------------- Station settings ----------------
-// Equivalent of Variables.TrainStationCode / Variables.MinuteThreshold
-extern const char *TrainStationCode;
-extern const int MinuteThreshold;
+void loadSettings();
+void saveSettings();
 
-// Equivalent of Variables.TrainRefreshTime (was in seconds/whatever unit you
-// used with time.sleep(); here it's expressed in milliseconds).
-extern const unsigned long TrainRefreshTime;
+// Root CA that signs api.wmata.com's certificate
+// (SSL.com TLS RSA Root CA 2022, expires 2046-08-19).
+extern const char WMATA_ROOT_CA[];
 
-// Equivalent of Variables.AbrvStations. The Python dict values could either
-// be a plain string or a list of strings (you used
-// `abbrevname[0] if isinstance(abbrevname, list) else abbrevname`).
-// To keep the ESP32 side simple, this map is String -> String; if you had
-// multiple abbreviations for one destination in Python, just pick the first
-// one when you fill this map in Config.cpp.
-extern std::map<String, String> AbrvStations;
+// Full station name -> split-flap-friendly abbreviation.
+extern const std::map<String, String> AbrvStations;

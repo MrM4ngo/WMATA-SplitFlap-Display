@@ -4,5 +4,6 @@
 .vscode/launch.json
 .vscode/ipch
 
-# Contains real WiFi credentials and API key
+# Local credential backups (config now lives in NVS via the setup portal)
+Config.cpp.bak
 src/Config.cpp
