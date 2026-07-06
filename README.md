@@ -1,32 +1,46 @@
 # WMATA Splitflap Display Board
 
-A Python service that pulls live WMATA Metro train predictions and formats them for a split-flap display board. Shows upcoming arrivals at your station, filtered by how long it takes you to walk there, with abbreviated destination names that fit limited character displays.
+A Python service and ESP32 firmware that pull live WMATA Metro train predictions and drive a **2-row × 17-column** split-flap display. The top row shows the current time; the bottom row cycles through upcoming arrivals at your station, filtered by walk time, with abbreviated destination names that fit the board width.
+
+## The Board
+
+This project is built for a split-flap module with **2 rows** and **17 characters per row** (34 flaps total).
+
+| Row | Content | Format | Example |
+|-----|---------|--------|---------|
+| Top | Current time (24-hour) | centered | `      14:51      ` |
+| Bottom | Next train | left-aligned | `Shady Grv 3 RD    ` |
+
+Trains are shown **one at a time** on the bottom row. Each train displays for `TrainRefreshTime ÷ number of trains` seconds before flipping to the next — the same timing in Python, the simulator, and the ESP32 firmware.
+
+Board dimensions are defined in `Variables.py` (`DisplayRows = 2`, `DisplayCols = 17`) and `firmware/include/Config.h` (`BOARD_ROWS`, `BOARD_COLS`).
 
 ## Features
 
 - **Live WMATA predictions** — Fetches real-time arrival data from the [WMATA API](https://developer.wmata.com/)
 - **Walk-time filtering** — Only shows trains you can realistically catch based on your travel time to the platform
-- **Split-flap friendly output** — Abbreviated station names for displays with a 10-character limit
-- **Configurable polling** — Set your station, refresh interval, and minute threshold in one place
-- **Service alerts** — Shows `RD LINE DELAY`-style alerts from the WMATA Incidents API for lines serving your station
-- **Desktop simulator** — Renders the split-flap board (with flap animation) in your terminal, no hardware needed
-- **Web config portal** — WiFi credentials, API key, and station settings are entered via a captive portal and stored in flash; nothing is compiled in
+- **2×17 split-flap layout** — 24-hour clock on top, train info on bottom, one train per cycle
+- **Abbreviated station names** — Long WMATA names shortened to fit 17 characters
+- **Desktop simulator** — Terminal preview with flap animation, same logic as the hardware
+- **Web config portal** — WiFi credentials, API key, and station settings via captive portal, stored in flash
 - **OTA updates** — Flash new firmware over WiFi after the first USB upload
-- **Night mode** — Syncs time via NTP and stops polling outside Metro service hours
-- **Hardened networking** — Pinned WMATA root CA, automatic WiFi reconnect, and a watchdog restart after repeated failures
+- **Night mode** — NTP-synced clock; stops polling outside Metro service hours and shows `METRO CLOSED`
+- **Hardened networking** — Pinned WMATA root CA, automatic WiFi reconnect, watchdog restart after repeated failures
 
 ## Requirements
 
 - Python 3.8+
 - A free [WMATA developer API key](https://developer.wmata.com/)
+- ESP32 dev board (for hardware deployment)
+- 2×17 split-flap display module
 
 ## Installation
 
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/MrM4ngo/TrainAPISplitFlap.git
-   cd TrainAPISplitFlap
+   git clone https://github.com/MrM4ngo/WMATA-SplitFlap-Display.git
+   cd WMATA-SplitFlap-Display
    ```
 
 2. Install dependencies:
@@ -47,73 +61,75 @@ Edit `Variables.py` to match your setup:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `TrainStationCode` | WMATA station code for your home stop | `D02` |
-| `MinuteThreshold` | Minimum minutes until arrival (your walk time to the platform) | `0` |
-| `TrainRefreshTime` | How often to poll the API, in seconds | `30` |
+| `TrainStationCode` | WMATA station code for your home stop | `A02` |
+| `MinuteThreshold` | Minimum minutes until arrival (walk time to platform) | `10` |
+| `TrainRefreshTime` | Seconds for one full cycle through all trains | `30` |
+| `DisplayRows` | Number of split-flap rows | `2` |
+| `DisplayCols` | Characters per row | `17` |
 
-Station codes are listed in `wmata_stations.csv`. Find your stop and use its `Code` column value.
+Station codes are listed in `wmata_stations.csv`.
 
 ## Usage
 
-Run the polling loop:
+### Python (serial output)
 
 ```bash
 python Trains.py
 ```
 
-Each cycle prints a list of upcoming trains:
+Prints two 17-character lines per train:
 
-```python
-[
-  {"Destination": "Shady Grove", "Min": 3, "Line": "RD"},
-  {"Destination": "Glenmont", "Min": 7, "Line": "RD"}
-]
+```text
+      14:51
+Shady Grv 3 RD
+      14:51
+Glenmont 7 RD
 ```
 
-- **Min** — Minutes until arrival (`0` means boarding or arriving now)
-- **Line** — Metro line code (e.g. `RD`, `BL`, `OR`, `SV`, `GR`, `YL`)
-
-You can also import `Trains()` in your own code to feed a split-flap controller or other display hardware.
-
-## Desktop Simulator
-
-`simulator.py` renders the split-flap board in your terminal — including the character-by-character flap animation — so you can test display formatting without flashing the ESP32.
+### Desktop simulator
 
 ```bash
-python simulator.py           # live data (uses .env and Variables.py)
-python simulator.py --demo    # canned data, no API key needed
+python simulator.py
 ```
 
-Options: `--rows N` sets the number of board rows (default 3), `--refresh S` overrides the refresh interval. Alerts and trains that don't fit on the board are cycled through in pages, like the real display.
+Same data and timing as `Trains.py`, rendered with flap animation in the terminal. Press **Ctrl+C** to quit.
+
+Optional flags (defaults come from `Variables.py`):
+
+| Option | Description |
+|--------|-------------|
+| `--width N` | Characters per row |
+| `--rows N` | Number of rows |
+| `--refresh S` | Seconds per full train cycle |
 
 ## Project Structure
 
 ```
-TrainAPISplitFlap/
-├── Trains.py              # WMATA API client and train filtering logic
-├── Variables.py           # Station, threshold, and refresh settings
+WMATA-SplitFlap-Display/
+├── Trains.py              # WMATA API, display formatting, PrintSpacer
+├── Variables.py           # Station, threshold, board size, abbreviations
 ├── simulator.py           # Terminal split-flap simulator
 ├── wmata_stations.csv     # Full WMATA station reference
 ├── requirements.txt       # Python dependencies
-├── .env                   # API key (not committed — create locally)
+├── .env                   # API key (not committed)
 └── firmware/              # ESP32 PlatformIO firmware
     ├── platformio.ini
-    ├── include/Config.h   # Settings struct + declarations
+    ├── include/Config.h   # BOARD_ROWS/COLS, settings struct
     └── src/
-        ├── main.cpp       # Train logic, WiFi, NTP, OTA, incidents
-        ├── Settings.cpp   # NVS-backed settings + pinned root CA
+        ├── main.cpp       # Display logic, WiFi, NTP, OTA
+        ├── Settings.cpp   # NVS settings + pinned root CA
         └── Stations.cpp   # Station abbreviation map
 ```
 
 ## ESP32 Firmware (PlatformIO)
 
-The `firmware/` folder contains a C++ port of `Trains.py` for ESP32 boards. It fetches WMATA predictions over WiFi and prints upcoming trains to the serial monitor.
+The firmware mirrors `Trains.py` display logic: top row is the NTP-synced 24-hour clock, bottom row cycles through trains one at a time. Output goes to the serial monitor (wire this to your flap controller when ready).
 
-No credentials are compiled in — everything is configured through a web portal on first boot:
+No credentials are compiled in — configure through the web portal on first boot:
 
 1. Install [PlatformIO](https://platformio.org/) (VS Code extension or CLI).
 2. Open the `firmware/` directory as your PlatformIO project.
-3. Adjust `upload_port` / `monitor_port` in `firmware/platformio.ini` for your COM port, then build and upload:
+3. Adjust `upload_port` / `monitor_port` in `firmware/platformio.ini`, then build and upload:
 
    ```bash
    cd firmware
@@ -121,25 +137,38 @@ No credentials are compiled in — everything is configured through a web portal
    pio device monitor
    ```
 
-4. On first boot the ESP32 opens a WiFi access point named **WMATA-Setup**. Connect to it from your phone or laptop and a captive portal appears (browse to `192.168.4.1` if it doesn't).
-5. Pick your WiFi network and enter its password, your WMATA API key, station code, minute threshold, and refresh interval. Everything is saved to flash (NVS) and survives reboots and reflashing.
+4. On first boot the ESP32 opens WiFi access point **WMATA-Setup**. Connect and enter your WiFi password, WMATA API key, station code, minute threshold, and refresh interval.
+5. Hold **BOOT** for 3 seconds anytime to reopen the config portal.
 
-To change settings later (new WiFi, different station), hold the **BOOT** button for 3 seconds — the WMATA-Setup portal reopens.
+Serial output example:
+
+```text
+      14:51
+Shady Grv 3 RD
+      14:52
+Glenmont 7 RD
+```
+
+Outside Metro hours the board shows:
+
+```text
+      02:15
+METRO CLOSED
+```
 
 ### OTA updates
 
-After the first USB flash, the device accepts over-the-air updates as `wmata-splitflap.local`. Uncomment the two OTA lines at the bottom of `platformio.ini` and `pio run -t upload` flashes over WiFi — no cable needed.
+After the first USB flash, uncomment the OTA lines in `platformio.ini` and upload over WiFi to `wmata-splitflap.local`.
 
-### Reliability behavior
+### Reliability
 
-- WiFi drops are detected each cycle and reconnected with a 15-second timeout; after 10 consecutive failed cycles the board restarts itself.
-- Time is synced via NTP (Eastern time with DST). Outside Metro service hours (Mon–Thu 5am–12am, Fri 5am–1am, Sat 7am–1am, Sun 7am–12am) the board prints `METRO CLOSED` and stops calling the API to save your daily quota.
-- HTTPS calls verify WMATA's certificate against its pinned root CA (SSL.com TLS RSA Root CA 2022, valid to 2046) instead of skipping validation.
-- Line incidents are fetched every 5 minutes; alerts affecting your station's lines are shown as e.g. `RD LINE DELAY` before the arrival list.
+- WiFi reconnects automatically with a 15-second timeout; 10 consecutive failures trigger a reboot.
+- HTTPS verifies WMATA's certificate against a pinned root CA.
+- NTP keeps the top-row clock accurate (Eastern time with DST).
 
 ## Abbreviated Station Names
 
-`Variables.py` includes an `AbrvStations` dictionary that maps full WMATA station names to short labels for split-flap displays. Names longer than 10 characters (including spaces) are abbreviated automatically.
+`Variables.py` and `firmware/src/Stations.cpp` map full WMATA station names to short labels. Text longer than 17 characters is truncated to fit the board.
 
 ## License
 

@@ -26,8 +26,6 @@ void saveSettings()
   prefs.end();
 }
 
-// SSL.com TLS RSA Root CA 2022 — root of api.wmata.com's certificate chain.
-// Expires 2046-08-19.
 const char WMATA_ROOT_CA[] = R"CERT(
 -----BEGIN CERTIFICATE-----
 MIIFiTCCA3GgAwIBAgIQb77arXO9CEDii02+1PdbkTANBgkqhkiG9w0BAQsFADBO

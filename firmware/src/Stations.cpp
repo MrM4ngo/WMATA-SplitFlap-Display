@@ -1,7 +1,5 @@
 #include "Config.h"
 
-// Mirrors AbrvStations in Variables.py. Names longer than 10 characters
-// (including spaces) are abbreviated to fit the split-flap module width.
 const std::map<String, String> AbrvStations = {
     {"Metro Center", "Metro Ctr"},
     {"Farragut North", "Farragut N"},

@@ -1,11 +1,9 @@
-# Time it takes to walk to train
-MinuteThreshold = 5
-# How often to refresh the train data (in seconds)
+MinuteThreshold = 10
 TrainRefreshTime = 30
-# Train station code to get predictions for (See wmata_stations.csv for list of station codes)
 TrainStationCode = "A02"
+DisplayRows = 2
+DisplayCols = 17
 
-# Abbreviated station names for display purposes (Larger than 10 characters inclding spaces will be abbreviated)
 AbrvStations = {
     "Metro Center": ["Metro Ctr"],
     "Farragut North": ["Farragut N"],
