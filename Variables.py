@@ -1,7 +1,7 @@
 # Time it takes to walk to train
 MinuteThreshold = 5
 # How often to refresh the train data (in seconds)
-TrainRefreshTime = 10
+TrainRefreshTime = 30
 # Train station code to get predictions for (See wmata_stations.csv for list of station codes)
 TrainStationCode = "A02"
 
@@ -14,7 +14,7 @@ AbrvStations = {
     "Cleveland Park": ["Cleve Pk"],
     "Van Ness-UDC": ["Van Ness"],
     "Tenleytown-AU": ["Tenleytown"],
-    "Friendship Heights": ["Friendshp H"],
+    "Frndshp H": ["Frndshp Ht"],
     "Medical Center": ["Medical Ctr"],
     "Grosvenor-Strathmore": ["Grosvenor"],
     "North Bethesda": ["N Bethesda"],

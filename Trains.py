@@ -59,6 +59,7 @@ def UpcomingTrains(StationCode, Threshold):
     UpcomingTrains = []
 
     data = TrainPredictions(StationCode)
+    # print(data)
 
     if data is None or "Trains" not in data:
         print("No trains found or API error")
@@ -70,8 +71,12 @@ def UpcomingTrains(StationCode, Threshold):
         ]:
             minutes = MinToInt(train["Min"])
             if minutes is not None and minutes >= Threshold:
+                abbrevname = AbbreviateChecker(train["Destination"])
+                DestinationName = (
+                    abbrevname[0] if isinstance(abbrevname, list) else abbrevname
+                )
                 TempTrain = {
-                    "Destination": AbbreviateChecker(train["Destination"]),
+                    "Destination": DestinationName,
                     "Min": minutes,
                     "Line": train["Line"],
                 }

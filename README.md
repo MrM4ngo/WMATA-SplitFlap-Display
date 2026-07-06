@@ -73,12 +73,41 @@ You can also import `Trains()` in your own code to feed a split-flap controller 
 
 ```
 TrainAPISplitFlap/
-├── Trains.py           # WMATA API client and train filtering logic
-├── Variables.py        # Station, threshold, and refresh settings
-├── wmata_stations.csv  # Full WMATA station reference
-├── requirements.txt    # Python dependencies
-└── .env                # API key (not committed — create locally)
+├── Trains.py              # WMATA API client and train filtering logic
+├── Variables.py           # Station, threshold, and refresh settings
+├── wmata_stations.csv     # Full WMATA station reference
+├── requirements.txt       # Python dependencies
+├── .env                   # API key (not committed — create locally)
+└── firmware/              # ESP32 PlatformIO firmware (C++ port of Trains.py)
+    ├── platformio.ini
+    ├── include/Config.h
+    ├── src/main.cpp       # Train prediction logic
+    └── src/Config.cpp.example
 ```
+
+## ESP32 Firmware (PlatformIO)
+
+The `firmware/` folder contains a C++ port of `Trains.py` for ESP32 boards. It fetches WMATA predictions over WiFi and prints upcoming trains to the serial monitor.
+
+1. Install [PlatformIO](https://platformio.org/) (VS Code extension or CLI).
+2. Open the `firmware/` directory as your PlatformIO project.
+3. Copy the example config and fill in your credentials:
+
+   ```bash
+   cp firmware/src/Config.cpp.example firmware/src/Config.cpp
+   ```
+
+4. Edit `firmware/src/Config.cpp` with your WiFi SSID/password, WMATA API key, station code, and abbreviation map (mirrors `Variables.py`).
+5. Adjust `upload_port` / `monitor_port` in `firmware/platformio.ini` for your COM port.
+6. Build and upload:
+
+   ```bash
+   cd firmware
+   pio run -t upload
+   pio device monitor
+   ```
+
+`Config.cpp` is gitignored so credentials stay local. Only `Config.cpp.example` is committed.
 
 ## Abbreviated Station Names
 
