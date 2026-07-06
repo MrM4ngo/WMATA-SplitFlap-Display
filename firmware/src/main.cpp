@@ -7,10 +7,7 @@
 
 #include "Config.h"
 
-// ---------------------------------------------------------------------------
-// A single upcoming train, equivalent to the dict you built in Python:
-// { "Destination": ..., "Min": ..., "Line": ... }
-// ---------------------------------------------------------------------------
+
 struct Train
 {
   String Destination;
@@ -18,14 +15,10 @@ struct Train
   String Line;
 };
 
-// Sentinel used in place of Python's `None` for MinToInt().
 static const int MIN_NONE = -9999;
 
-// ---------------------------------------------------------------------------
-// Helper functions (mirrors of MinToInt / AbbreviateChecker / PrintSpacer)
-// ---------------------------------------------------------------------------
+// Helper Functions
 
-// Equivalent of MinToInt(MinValue)
 int MinToInt(const String &MinValue)
 {
   if (MinValue == "ARR" || MinValue == "BRD")
@@ -36,12 +29,9 @@ int MinToInt(const String &MinValue)
   {
     return MIN_NONE;
   }
-  // int() equivalent - toInt() returns 0 on failure, which is fine here
-  // since a real "0" would already have been caught as ARR/BRD above.
   return MinValue.toInt();
 }
 
-// Equivalent of AbbreviateChecker(name)
 String AbbreviateChecker(const String &name)
 {
   auto it = AbrvStations.find(name);
@@ -52,7 +42,6 @@ String AbbreviateChecker(const String &name)
   return name;
 }
 
-// Equivalent of PrintSpacer(UpcomingTrains)
 void PrintSpacer(const std::vector<Train> &upcomingTrains)
 {
   size_t size = upcomingTrains.size();
@@ -74,18 +63,14 @@ void PrintSpacer(const std::vector<Train> &upcomingTrains)
   }
 }
 
-// ---------------------------------------------------------------------------
-// Main functions (mirrors of TrainPredictions / UpcomingTrains)
-// ---------------------------------------------------------------------------
+// Main Functions
 
-// Equivalent of TrainPredictions(StationCode).
-// Returns true on success and fills `doc` with the parsed JSON body.
 bool TrainPredictions(const String &StationCode, JsonDocument &doc)
 {
   String url = "https://api.wmata.com/StationPrediction.svc/json/GetPrediction/" + StationCode;
 
   WiFiClientSecure client;
-  client.setInsecure(); // skip cert validation, same trust level as `requests` by default
+  client.setInsecure(); 
 
   HTTPClient http;
   http.begin(client, url);
@@ -115,7 +100,6 @@ bool TrainPredictions(const String &StationCode, JsonDocument &doc)
   }
 }
 
-// Equivalent of UpcomingTrains(StationCode, Threshold)
 std::vector<Train> GetUpcomingTrains(const String &StationCode, int Threshold)
 {
   std::vector<Train> upcomingTrains;
@@ -135,7 +119,6 @@ std::vector<Train> GetUpcomingTrains(const String &StationCode, int Threshold)
   {
     String destination = train["Destination"].as<String>();
 
-    // Skip if we've already added this destination
     bool alreadyAdded = false;
     for (const Train &saved : upcomingTrains)
     {
@@ -169,9 +152,7 @@ std::vector<Train> GetUpcomingTrains(const String &StationCode, int Threshold)
   return upcomingTrains;
 }
 
-// ---------------------------------------------------------------------------
 // WiFi connect helper
-// ---------------------------------------------------------------------------
 void connectWiFi()
 {
   Serial.print("Connecting to WiFi");
@@ -186,9 +167,7 @@ void connectWiFi()
   Serial.println(WiFi.localIP());
 }
 
-// ---------------------------------------------------------------------------
-// Arduino entry points (equivalent of `if __name__ == "__main__": while True:`)
-// ---------------------------------------------------------------------------
+
 void setup()
 {
   Serial.begin(115200);
