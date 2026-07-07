@@ -8,7 +8,7 @@ These templates correspond to files listed in `.gitignore` and `firmware/.gitign
 |----------|---------|-------|
 | `firmware/.vscode/c_cpp_properties.json.example` | `firmware/.vscode/c_cpp_properties.json` | IntelliSense include paths. PlatformIO also auto-generates this after the first build. |
 | `firmware/.vscode/launch.json.example` | `firmware/.vscode/launch.json` | PlatformIO debug launch config. |
-| `.vscode/c_cpp_properties.json.example` | `.vscode/c_cpp_properties.json` | Use when opening the **repo root** instead of `firmware/`. |
+| `templates/vscode-c_cpp_properties.json.example` | `.vscode/c_cpp_properties.json` | Use when opening the **repo root** instead of `firmware/`. |
 | `firmware/compile_commands.json.example` | `firmware/compile_commands.json` | Stub only — regenerate a real file (see below). |
 | `firmware/platformio.ini.example` | `firmware/platformio.ini` | Optional. Set `upload_port` / `monitor_port` to your COM port. |
 
