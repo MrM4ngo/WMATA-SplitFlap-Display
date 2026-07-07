@@ -1,0 +1,17 @@
+; Copy to platformio.ini and set your serial port.
+; platformio.ini is not gitignored, but this template is provided if you
+; prefer to keep a local override out of version control.
+
+[env:esp32dev]
+platform = espressif32
+board = esp32dev
+framework = arduino
+
+monitor_speed = 115200
+
+lib_deps =
+    bblanchon/ArduinoJson@^7.2.0
+    tzapu/WiFiManager@^2.0.17
+
+upload_port = COM_PORT_HERE
+monitor_port = COM_PORT_HERE

@@ -126,10 +126,13 @@ Station codes are listed in `wmata_stations.csv`.
 
 No credentials are compiled into the firmware.
 
+See [`templates/README.md`](templates/README.md) for example files matching gitignored IDE and build paths (COM port, IntelliSense, debug config).
+
 ## Project Structure
 
 ```
 WMATA-SplitFlap-Display/
+├── templates/README.md    # How to set up gitignored local/IDE files
 ├── wmata_stations.csv     # Full WMATA station reference
 └── firmware/              # ESP32 PlatformIO project
     ├── platformio.ini
