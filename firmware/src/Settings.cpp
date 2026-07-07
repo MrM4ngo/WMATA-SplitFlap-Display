@@ -3,6 +3,7 @@
 #include <Preferences.h>
 
 Settings AppSettings;
+String TextPresets[MAX_TEXT_PRESETS];
 
 static Preferences prefs;
 
@@ -13,6 +14,16 @@ void loadSettings()
   AppSettings.stationCode = prefs.getString("station", "A01");
   AppSettings.minuteThreshold = prefs.getInt("thresh", 0);
   AppSettings.refreshSeconds = prefs.getULong("refresh", 30);
+  AppSettings.activeFeature = prefs.getString("feature", "trains");
+  AppSettings.spotifyId = prefs.getString("spid", "");
+  AppSettings.spotifySecret = prefs.getString("spsec", "");
+  AppSettings.spotifyRefresh = prefs.getString("sptok", "");
+  AppSettings.textRow1 = prefs.getString("txt1", "");
+  AppSettings.textRow2 = prefs.getString("txt2", "");
+  for (int i = 0; i < MAX_TEXT_PRESETS; i++)
+  {
+    TextPresets[i] = prefs.getString(("pt" + String(i)).c_str(), "");
+  }
   prefs.end();
 }
 
@@ -23,6 +34,16 @@ void saveSettings()
   prefs.putString("station", AppSettings.stationCode);
   prefs.putInt("thresh", AppSettings.minuteThreshold);
   prefs.putULong("refresh", AppSettings.refreshSeconds);
+  prefs.putString("feature", AppSettings.activeFeature);
+  prefs.putString("spid", AppSettings.spotifyId);
+  prefs.putString("spsec", AppSettings.spotifySecret);
+  prefs.putString("sptok", AppSettings.spotifyRefresh);
+  prefs.putString("txt1", AppSettings.textRow1);
+  prefs.putString("txt2", AppSettings.textRow2);
+  for (int i = 0; i < MAX_TEXT_PRESETS; i++)
+  {
+    prefs.putString(("pt" + String(i)).c_str(), TextPresets[i]);
+  }
   prefs.end();
 }
 

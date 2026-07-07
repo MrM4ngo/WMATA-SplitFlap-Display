@@ -3,5 +3,7 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+.cache/
+compile_commands.json
 Config.cpp.bak
 src/Config.cpp

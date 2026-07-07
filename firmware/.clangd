@@ -1,0 +1,27 @@
+CompileFlags:
+  CompilationDatabase: .
+  Remove:
+    - -mlongcalls
+    - -fstrict-volatile-bitfields
+    - -fno-tree-switch-conversion
+    - -fno-jump-tables
+    - -freorder-blocks
+    - -fstack-protector
+    - -ffunction-sections
+    - -fdata-sections
+    - -ggdb
+    - -MMD
+    - -Os
+    - -Wno-frame-address
+    - -Wno-old-style-declaration
+    - -Wno-error=*
+    - -Wwrite-strings
+  Add:
+    - -Wno-unknown-attributes
+    - -Wno-ignored-attributes
+    - -Wno-unknown-warning-option
+
+Diagnostics:
+  Suppress:
+    - drv_unknown_argument
+    - drv_unknown_argument_with_suggestion

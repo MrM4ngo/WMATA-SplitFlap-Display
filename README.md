@@ -156,6 +156,44 @@ Outside Metro hours the board shows:
 METRO CLOSED
 ```
 
+## Web Portal (Features)
+
+Once the board is on your WiFi, it serves a control page you can open anytime from your phone or computer:
+
+- **`http://wmata-splitflap.local`** (or the IP shown in the serial monitor, e.g. `http://192.168.1.48`)
+
+The portal shows a live preview of both board rows and lets you switch the active **feature**:
+
+| Feature | Top row | Bottom row |
+|---------|---------|------------|
+| **Trains** | Time (24-hour) | Next train, one per cycle |
+| **Clock** | Time (24-hour) | Date, e.g. `MON JUL 06` |
+| **Spotify** | Time (24-hour) | Current song — artist (scrolls if long) |
+
+Feature choice and all settings are saved to flash and survive reboots. Train settings (station, threshold, refresh) can also be changed from the portal without touching the WMATA-Setup captive portal.
+
+### Spotify setup
+
+The Spotify feature needs a one-time authorization so the board can read your currently playing track:
+
+1. Create an app at [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard). Note the **Client ID** and **Client Secret**, and add `http://127.0.0.1:8888/callback` as a Redirect URI.
+2. Authorize your account in a browser (replace `CLIENT_ID`):
+
+   ```text
+   https://accounts.spotify.com/authorize?client_id=CLIENT_ID&response_type=code&redirect_uri=http://127.0.0.1:8888/callback&scope=user-read-currently-playing
+   ```
+
+3. After approving, the browser redirects to a URL containing `?code=...`. Copy that code (it expires quickly).
+4. Exchange it for a **refresh token** (replace the placeholders):
+
+   ```bash
+   curl -X POST https://accounts.spotify.com/api/token -H "Content-Type: application/x-www-form-urlencoded" -d "grant_type=authorization_code&code=CODE&redirect_uri=http://127.0.0.1:8888/callback&client_id=CLIENT_ID&client_secret=CLIENT_SECRET"
+   ```
+
+5. Paste the Client ID, Client Secret, and `refresh_token` from the response into the portal's **Spotify settings** form.
+
+The refresh token does not expire; the board renews its access token automatically.
+
 ### OTA updates
 
 After the first USB flash, uncomment the OTA lines in `platformio.ini` and upload over WiFi to `wmata-splitflap.local`.
