@@ -148,7 +148,7 @@ WMATA-SplitFlap-Display/
 
 ## Abbreviated Station Names
 
-`firmware/src/Stations.cpp` maps full WMATA station names to short labels. Text longer than 17 characters is truncated to fit the board.
+`firmware/src/Stations.cpp` maps full WMATA station names to short labels. Station names longer than 10 characters is truncated/abbreviated to fit the board.
 
 ## License
 
