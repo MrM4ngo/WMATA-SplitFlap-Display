@@ -1,0 +1,7 @@
+[
+  {
+    "directory": "C:/path/to/WMATA-SplitFlap-Display/firmware",
+    "command": "clang++ -std=gnu++11 -IC:/path/to/firmware/include -IC:/path/to/firmware/src -c C:/path/to/firmware/src/main.cpp",
+    "file": "C:/path/to/WMATA-SplitFlap-Display/firmware/src/main.cpp"
+  }
+]

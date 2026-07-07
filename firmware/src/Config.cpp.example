@@ -1,0 +1,8 @@
+// DEPRECATED — do not copy into the project.
+//
+// Settings (API key, station, Spotify credentials, etc.) are stored in ESP32
+// flash via Settings.cpp and configured through the WiFi captive portal or
+// web control page. No secrets belong in source files.
+//
+// This file is kept only as a historical reference for the old compile-time
+// config pattern. src/Config.cpp is gitignored so a local copy is never committed.
